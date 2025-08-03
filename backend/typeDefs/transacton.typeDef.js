@@ -6,6 +6,7 @@ const transactionTypeDef = `#graphql
         description: String!
         paymentType: String!
         category: String!
+        subcategory: String!
         amount: Float!
         location: String
         date: String!
@@ -15,6 +16,8 @@ const transactionTypeDef = `#graphql
         transactions: [Transaction!]
         transaction(transactionId: ID!): Transaction
         categoryStatistics: [CategoryStatistics!]
+        expenseSubcategoryStatistics: [SubcategoryStatistics!]
+        categories: Categories!
     }
 
     type Mutation {
@@ -28,10 +31,35 @@ const transactionTypeDef = `#graphql
         totalAmount: Float
     }
 
+    type SubcategoryStatistics {
+        subcategory: String!
+        totalAmount: Float
+        percentage: Float
+    }
+
+    type Subcategory {
+        key: String!
+        label: String!
+        icon: String!
+    }
+
+    type Category {
+        key: String!
+        label: String!
+        subcategories: [Subcategory!]!
+    }
+
+    type Categories {
+        expense: Category!
+        income: Category!
+        investment: Category!
+    }
+
     input CreateTransactionInput {
         description: String!
         paymentType: String!
         category: String!
+        subcategory: String!
         amount: Float!
         location: String
         date: String!
@@ -42,6 +70,7 @@ const transactionTypeDef = `#graphql
         description: String
         paymentType: String
         category: String
+        subcategory: String
         amount: Float
         location: String
         date: String

@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import {useParams} from 'react-router-dom'
 import toast from "react-hot-toast"
 
-import { GET_TRANSACTION } from "../graphql/queries/transaction.query";
+import { GET_TRANSACTION, GET_CATEGORIES } from "../graphql/queries/transaction.query";
 import {UPDATE_TRANSACTION} from '../graphql/mutations/transaction.mutation'
 import TransactionFormSkeleton from "../components/skeletons/TransactionFormSkeleton"
 
@@ -15,6 +15,8 @@ const TransactionPage = () => {
 		variables: {id: id}
 	})
 
+	const { data: categoriesData } = useQuery(GET_CATEGORIES);
+
 	const [updateTransaction, {loading: loadingUpdate}] = useMutation(UPDATE_TRANSACTION, {
 		refetchQueries: ['GetTransactionStatistics']
 	})
@@ -23,6 +25,7 @@ const TransactionPage = () => {
 		description: '',
 		paymentType: '',
 		category: '',
+		subcategory: '',
 		amount: "",
 		location: "",
 		date: "",
@@ -62,6 +65,7 @@ const TransactionPage = () => {
 				description: data?.transaction?.description,
 				paymentType: data?.transaction?.paymentType,
 				category: data?.transaction?.category,
+				subcategory: data?.transaction?.subcategory || "other",
 				amount: data?.transaction?.amount,
 				location: data?.transaction?.location,
 				date: new Date(+data?.transaction?.date).toISOString().substring(0, 10)	
@@ -143,11 +147,46 @@ const TransactionPage = () => {
 								id='category'
 								name='category'
 								onChange={handleInputChange}
-								defaultValue={formData.category}
+								value={formData.category}
 							>
-								<option value={"saving"}>Saving</option>
 								<option value={"expense"}>Expense</option>
+								<option value={"income"}>Income</option>
 								<option value={"investment"}>Investment</option>
+							</select>
+							<div className='pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700'>
+								<svg
+									className='fill-current h-4 w-4'
+									xmlns='http://www.w3.org/2000/svg'
+									viewBox='0 0 20 20'
+								>
+									<path d='M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z' />
+								</svg>
+							</div>
+						</div>
+					</div>
+
+					{/* SUBCATEGORY */}
+					<div className='w-full flex-1 mb-6 md:mb-0'>
+						<label
+							className='block uppercase tracking-wide text-white text-xs font-bold mb-2'
+							htmlFor='subcategory'
+						>
+							Subcategory
+						</label>
+						<div className='relative'>
+							<select
+								className='block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500'
+								id='subcategory'
+								name='subcategory'
+								onChange={handleInputChange}
+								value={formData.subcategory}
+							>
+								<option value="">Select Subcategory</option>
+								{categoriesData?.categories?.[formData.category]?.subcategories?.map((sub) => (
+									<option key={sub.key} value={sub.key}>
+										{sub.icon} {sub.label}
+									</option>
+								))}
 							</select>
 							<div className='pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700'>
 								<svg

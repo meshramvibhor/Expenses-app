@@ -8,6 +8,7 @@ export const CREATE_TRANSACTION = gql`
             description
             paymentType
             category
+            subcategory
             amount
             location
             date
@@ -23,6 +24,7 @@ export const UPDATE_TRANSACTION = gql`
             description
             paymentType
             category
+            subcategory
             amount
             location
             date

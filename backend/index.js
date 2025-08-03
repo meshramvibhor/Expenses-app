@@ -22,6 +22,9 @@ import { configurePassport } from './passport/passport.config.js';
 
 
 dotenv.config()
+
+
+
 configurePassport()
 
 const app = express();
@@ -57,6 +60,8 @@ app.use(
 app.use(passport.initialize())
 app.use(passport.session())
 
+
+
 const server = new ApolloServer({
   typeDefs:  mergedTypeDefs,
   resolvers: mergedResolvers,
@@ -70,7 +75,7 @@ await server.start();
 app.use(
   '/graphql',
   cors({
-    origin: "http://localhost:3000",
+    origin: ["http://localhost:3000", "http://localhost:5173"], // Add Vite's default port
     credentials: true,
   }),
   express.json(),

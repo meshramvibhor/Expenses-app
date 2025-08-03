@@ -1,11 +1,17 @@
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import toast from "react-hot-toast"
 import { CREATE_TRANSACTION } from "../graphql/mutations/transaction.mutation";
+import { GET_CATEGORIES } from "../graphql/queries/transaction.query";
+import { useState, useEffect } from "react";
 
 const TransactionForm = () => {
+	const [selectedCategory, setSelectedCategory] = useState("expense");
+	const [selectedSubcategory, setSelectedSubcategory] = useState("");
+
+	const { data: categoriesData } = useQuery(GET_CATEGORIES);
 
 	const [createTransaction, { loading, error }] = useMutation(CREATE_TRANSACTION, {
-		refetchQueries: ["GetTransactions", "GetTransactionStatistics"]
+		refetchQueries: ["GetTransactions", "GetTransactionStatistics", "GetExpenseSubcategoryStatistics"]
 	})
 	
 	const handleSubmit = async (e) => {
@@ -16,7 +22,8 @@ const TransactionForm = () => {
 		const transactionData = {
 			description: formData.get("description"),
 			paymentType: formData.get("paymentType"),
-			category: formData.get("category"),
+			category: selectedCategory,
+			subcategory: selectedSubcategory || "other",
 			amount: parseFloat(formData.get("amount")),
 			location: formData.get("location"),
 			date: formData.get("date"),
@@ -104,10 +111,51 @@ const TransactionForm = () => {
 							className='block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500'
 							id='category'
 							name='category'
+							value={selectedCategory}
+							onChange={(e) => {
+								setSelectedCategory(e.target.value);
+								setSelectedSubcategory("");
+							}}
 						>
-							<option value={"saving"}>Saving</option>
 							<option value={"expense"}>Expense</option>
+							<option value={"income"}>Income</option>
 							<option value={"investment"}>Investment</option>
+						</select>
+						<div className='pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700'>
+							<svg
+								className='fill-current h-4 w-4'
+								xmlns='http://www.w3.org/2000/svg'
+								viewBox='0 0 20 20'
+							>
+								<path d='M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z' />
+							</svg>
+						</div>
+					</div>
+				</div>
+
+				{/* SUBCATEGORY */}
+				<div className='w-full flex-1 mb-6 md:mb-0'>
+					<label
+						className='block uppercase tracking-wide text-white text-xs font-bold mb-2'
+						htmlFor='subcategory'
+					>
+						Subcategory
+					</label>
+					<div className='relative'>
+						<select
+							className='block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500'
+							id='subcategory'
+							name='subcategory'
+							value={selectedSubcategory}
+							onChange={(e) => setSelectedSubcategory(e.target.value)}
+							required
+						>
+							<option value="">Select Subcategory</option>
+							{categoriesData?.categories?.[selectedCategory]?.subcategories?.map((sub) => (
+								<option key={sub.key} value={sub.key}>
+									{sub.icon} {sub.label}
+								</option>
+							))}
 						</select>
 						<div className='pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700'>
 							<svg

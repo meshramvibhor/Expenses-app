@@ -7,8 +7,10 @@ import GridBackground from './components/ui/GridBackground.jsx';
 
 import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
 
+const graphqlUri = import.meta.env.DEV ? 'http://localhost:4000/graphql' : "/graphql";
+
 const client = new ApolloClient({
-	uri: import.meta.env.VITE_NODE_ENV === "developement" ? 'http://localhost:4000/graphql' : "/graphql",  // the URL of our GraphQL server.
+	uri: graphqlUri,  // the URL of our GraphQL server.
 	cache: new InMemoryCache(),  // Apollo client uses to cache query result after fetching them.
 	credentials: "include",  // this tells Apollo Client to send cookies along wiwth every request to the server.
 });

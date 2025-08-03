@@ -8,6 +8,7 @@ export const GET_TRANSACTIONS = gql`
             description
             paymentType
             category
+            subcategory
             amount
             location
             date
@@ -22,6 +23,7 @@ export const GET_TRANSACTION = gql`
             description
             paymentType
             category
+            subcategory
             amount
             location
             date
@@ -34,6 +36,50 @@ export const GET_TRANSACTION_STATISTICS = gql`
         categoryStatistics {
             category,
             totalAmount
+        }
+    }
+`;
+
+export const GET_CATEGORIES = gql`
+    query GetCategories {
+        categories {
+            expense {
+                key
+                label
+                subcategories {
+                    key
+                    label
+                    icon
+                }
+            }
+            income {
+                key
+                label
+                subcategories {
+                    key
+                    label
+                    icon
+                }
+            }
+            investment {
+                key
+                label
+                subcategories {
+                    key
+                    label
+                    icon
+                }
+            }
+        }
+    }
+`;
+
+export const GET_EXPENSE_SUBCATEGORY_STATISTICS = gql`
+    query GetExpenseSubcategoryStatistics {
+        expenseSubcategoryStatistics {
+            subcategory
+            totalAmount
+            percentage
         }
     }
 `;

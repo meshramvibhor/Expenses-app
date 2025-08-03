@@ -20,7 +20,12 @@ const transactionSchema = new mongoose.Schema({
 
     category: {
         type: String,
-        enum: ["saving", "expense", 'investment'],
+        enum: ["expense", "income", "investment"],
+        required: true
+    },
+
+    subcategory: {
+        type: String,
         required: true
     },
 

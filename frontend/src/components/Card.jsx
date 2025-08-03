@@ -9,26 +9,39 @@ import { formatDate } from "../utils/formatDate";
 import toast from "react-hot-toast";
 import { useMutation } from "@apollo/client";
 import { DELETE_TRANSACTION } from "../graphql/mutations/transaction.mutation";
+import { getSubcategoryLabel, getSubcategoryIcon } from "../config/categories";
 
 const categoryColorMap = {
-	saving: "from-green-700 to-green-400",
 	expense: "from-pink-800 to-pink-600",
+	income: "from-green-700 to-green-400",
 	investment: "from-blue-700 to-blue-400",
+	saving: "from-green-700 to-green-400", // Map old saving to income color
 	// Add more categories and corresponding color classes as needed
 };
 
 const Card = ({ transaction }) => {
 
-	let {category, amount, date, paymentType, description, location} = transaction
+	let {category, subcategory, amount, date, paymentType, description, location} = transaction
 
-	const cardClass = categoryColorMap[category];
+	// Ensure category is properly mapped and has a color
+	let normalizedCategory = category;
+	if (category === "saving") {
+		normalizedCategory = "income";
+	}
+	
+	const cardClass = categoryColorMap[normalizedCategory] || "from-gray-600 to-gray-400"; // Default fallback
 
 	const [deleteTransaction, {loading}] = useMutation(DELETE_TRANSACTION, {
 		refetchQueries: ["GetTransactions", "GetTransactionStatistics"]
 	})
 
 	description = description[0].toUpperCase() + description.slice(1)
-	category = category[0].toUpperCase() + category.slice(1)
+	
+	// Use normalized category for display
+	const displayCategory = normalizedCategory[0].toUpperCase() + normalizedCategory.slice(1);
+	
+	const subcategoryLabel = subcategory ? getSubcategoryLabel(normalizedCategory, subcategory) : "Other";
+	const subcategoryIcon = subcategory ? getSubcategoryIcon(normalizedCategory, subcategory) : "📝";
 	paymentType = paymentType[0].toUpperCase() + paymentType.slice(1)
 	const formattedDate = formatDate(date)
 
@@ -46,7 +59,10 @@ const Card = ({ transaction }) => {
 		<div className={`rounded-md p-4 bg-gradient-to-br ${cardClass}`}>
 			<div className='flex flex-col gap-3'>
 				<div className='flex flex-row items-center justify-between'>
-					<h2 className='text-lg font-bold text-white'>{category}</h2>
+					<div>
+						<h2 className='text-lg font-bold text-white'>{displayCategory}</h2>
+						<p className='text-sm text-white opacity-90'>{subcategoryIcon} {subcategoryLabel}</p>
+					</div>
 					<div className='flex items-center gap-2'>
 						{!loading && <FaTrash className={"cursor-pointer"} onClick={handleDelete} />}
 						{loading && (
